@@ -3,9 +3,16 @@ package main
 import (
 	"fmt"
 	"github.com/gocolly/colly"
+	"hentai/util"
+)
+
+const (
+	outputDir = "./out/"
 )
 
 func main() {
+	util.New().CheckDirExist(outputDir)
+
 	c := colly.NewCollector(
 		colly.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"),
 		//colly.Debugger(&debug.LogDebugger{}),
@@ -13,25 +20,29 @@ func main() {
 
 	c.AllowedDomains = []string{"exhentai.org"}
 
-	c.OnHTML(".gl3t a[href]", func(e *colly.HTMLElement) {
-		link := e.Attr("href")
-		fmt.Println("Link: ", e.Text, link)
-	})
-	
 	c.OnRequest(func(r *colly.Request) {
-		r.Headers.Set("Host", "exhentai.org")
-		r.Headers.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
-		r.Headers.Set("Accept-Encoding", "gzip, deflate, br")
-		r.Headers.Set("Accept-Language", "zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7")
-		r.Headers.Set("Cache-Control", "max-age=0")
-		r.Headers.Set("Connection", "keep-alive")
-		r.Headers.Set("Cookie", "")
+		util.New().SetHeader(r)
 		fmt.Println("Visiting", r.URL.String())
+	})
+
+	c.OnHTML(".gl3t a[href]", func(e *colly.HTMLElement) {
+		d := c.Clone()
+		link := e.Attr("href")
+		d.OnRequest(func(dr *colly.Request) {
+			util.New().SetHeader(dr)
+			fmt.Println("Detail Visiting", dr.URL.String())
+		})
+		d.OnHTML("#gn", func(de *colly.HTMLElement) {
+			fmt.Println("detail title: ", de.Text)
+		})
+		d.OnResponse(func(r *colly.Response) {
+			r.Save(outputDir + r.FileName())
+		})
+		d.Visit(e.Request.AbsoluteURL(link))
 	})
 
 	c.OnResponse(func(r *colly.Response) {
 	})
 
-	c.Visit("https://exhentai.org/")
-
+	c.Visit("https://exhentai.org/?f_search=chinese")
 }
