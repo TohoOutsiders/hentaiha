@@ -23,6 +23,7 @@ func New() (t *Tools) {
 
 func (t *Tools) CheckDirExist(path string) {
 	_, err := os.Stat(path)
+
 	if !os.IsNotExist(err) {
 		os.RemoveAll(path)
 	}
