@@ -11,25 +11,41 @@ import (
 
 const (
 	outputDir = "./out/"
+	pageTotal = 5
 )
 
 func main() {
 	util.New().CheckDirExist(outputDir)
+
+	chNum := pageTotal + 1
+	ch := make(chan int, chNum)
 
 	c := colly.NewCollector(
 		colly.UserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"),
 		//colly.Debugger(&debug.LogDebugger{}),
 	)
 
-	//c.AllowedDomains = []string{"exhentai.org"}
+	go cheerioFirstListPage(c, ch)
 
-	cheerioListPage(c)
+	i := 1
+	for {
+		if i > 5 {
+			break
+		}
+		go cheerioListPage(c, i, ch)
+		i++
+	}
+
+	cashPool :=0
+	for cashPool < chNum {
+		cashPool += <-ch
+	}
 }
 
 /**
 	请求根地址，列表页
  */
-func cheerioListPage(c *colly.Collector) {
+func cheerioFirstListPage(c *colly.Collector, ch chan int) {
 	c.OnRequest(func(r *colly.Request) {
 		util.New().SetHeader(r)
 		fmt.Println("Visiting", r.URL.String())
@@ -45,13 +61,34 @@ func cheerioListPage(c *colly.Collector) {
 	})
 
 	c.Visit("https://exhentai.org/?f_search=chinese")
+
+	ch <- 1
+}
+
+func cheerioListPage(c *colly.Collector, pageIndex int, ch chan int) {
+	c.OnRequest(func(r *colly.Request) {
+		util.New().SetHeader(r)
+		fmt.Println("Visiting", r.URL.String())
+	})
+
+	// 获取每个list .gl3t a标签元素的详情链接
+	c.OnHTML(".gl3t a[href]", func(e *colly.HTMLElement) {
+		d := c.Clone()
+		requestDetailPage(d, e)
+	})
+
+	c.OnResponse(func(r *colly.Response) {
+	})
+
+	c.Visit(fmt.Sprintf("https://exhentai.org/?page=%d&f_search=chinese", pageIndex))
+
+	ch <- 1
 }
 
 /**
 	列表各个详情页访问
  */
 func requestDetailPage(c *colly.Collector, cheeioEl *colly.HTMLElement)  {
-	var err error
 	var title *string
 	link := cheeioEl.Attr("href")
 
@@ -64,11 +101,7 @@ func requestDetailPage(c *colly.Collector, cheeioEl *colly.HTMLElement)  {
 	c.OnHTML("#gn", func(de *colly.HTMLElement) {
 		title = &de.Text
 		groupDir := fmt.Sprintf("%s%s", outputDir, *title)
-		err = os.Mkdir(groupDir, os.ModePerm)
-		if err != nil {
-			fmt.Errorf("%v\n", err)
-		}
-		//de.Response.Save(groupDir)
+		_ = os.Mkdir(groupDir, os.ModePerm)
 		fmt.Println("detail title: ", de.Text)
 
 	})
@@ -90,7 +123,6 @@ func mapImageForHentai(c *colly.Collector, detailEl *colly.HTMLElement, title *s
 
 	c.OnRequest(func(mr *colly.Request) {
 		util.New().SetHeader(mr)
-		fmt.Println("Picture Visiting", mr.URL.String())
 	})
 
 	c.OnHTML("#i2 .sn span:last-child", func(e *colly.HTMLElement) {
@@ -100,8 +132,6 @@ func mapImageForHentai(c *colly.Collector, detailEl *colly.HTMLElement, title *s
 
 	// 获取图片存储图片
 	c.OnHTML("#i3 > a > img", func(e *colly.HTMLElement) {
-		imgSrc := e.Attr("src")
-		fmt.Println("Image Src: ", imgSrc)
 		d := c.Clone()
 		reduceImage(d, e, title)
 	})
@@ -121,17 +151,12 @@ func nextImageGiveMe(c *colly.Collector, mapEl *colly.HTMLElement, title *string
 	fmt.Println("=======================total ", total, "=========================")
 	if *nextIndex <= total {
 		next := mapEl.Attr("href")
-		fmt.Println("Next Image Page: ", next)
-
 		c.OnRequest(func(mr *colly.Request) {
 			util.New().SetHeader(mr)
-			fmt.Println("Picture Visiting", mr.URL.String())
 		})
 
 		// 获取图片存储图片
 		c.OnHTML("#i3 > a > img", func(e *colly.HTMLElement) {
-			imgSrc := e.Attr("src")
-			fmt.Println("Image Src: ", imgSrc)
 			d := c.Clone()
 			reduceImage(d, e, title)
 		})
