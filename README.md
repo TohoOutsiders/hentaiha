@@ -1,6 +1,6 @@
 # 変態は！！
 
-# You need to do
+### You need to do
 
 ```shell
 # dir: project/util/tools.go
@@ -11,7 +11,7 @@ func (t *Tools) SetHeader(r *colly.Request) {
 }
 ```
 
-# $
+### $
 ```shell
 go mod download
 
@@ -20,7 +20,13 @@ go run main.go
 go build main.go
 ```
 
-# contact me
+### TODO
+
+- [ ] 使用配置文件(eg: 爬取的页数 ...)
+- [ ] 登陆E-Hentai Forums保存并获取cookie
+- [ ] 终端输出美化
+
+### contact me
 
 - QQ Group: 795711415
 
