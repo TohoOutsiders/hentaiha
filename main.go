@@ -23,13 +23,13 @@ func main() {
 
 	//c.AllowedDomains = []string{"exhentai.org"}
 
-	cheeioListPage(c)
+	cheerioListPage(c)
 }
 
 /**
 	请求根地址，列表页
  */
-func cheeioListPage(c *colly.Collector) {
+func cheerioListPage(c *colly.Collector) {
 	c.OnRequest(func(r *colly.Request) {
 		util.New().SetHeader(r)
 		fmt.Println("Visiting", r.URL.String())
@@ -108,7 +108,7 @@ func mapImageForHentai(c *colly.Collector, detailEl *colly.HTMLElement, title *s
 	
 	c.OnHTML("#i3 > a[href]", func(e *colly.HTMLElement) {
 		next := e.Attr("href")
-		fmt.Println("Next Image Page: ", next)
+		fmt.Println("【HEAD】Next Image Page: ", next)
 		d := c.Clone()
 		nextImageGiveMe(d, e, title, &index, *num)
 	})
@@ -141,10 +141,10 @@ func nextImageGiveMe(c *colly.Collector, mapEl *colly.HTMLElement, title *string
 			fmt.Println("Next Image Page: ", next)
 			d := c.Clone()
 			*nextIndex++
-			nextImageGiveMe(d, mapEl, title, nextIndex, total)
+			nextImageGiveMe(d, e, title, nextIndex, total)
 		})
 
-		c.Visit(next)
+		c.Visit(mapEl.Request.AbsoluteURL(next))
 	}
 }
 
