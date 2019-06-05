@@ -20,6 +20,10 @@ go run main.go
 go build main.go
 ```
 
+### EndTime
+
+- 请求次数过多，导致封禁IP 40min(?)，可能更久或永封
+
 ### TODO
 
 - [ ] 使用配置文件(eg: 爬取的页数 ...)
