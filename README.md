@@ -1,6 +1,6 @@
 # 変態は！！
 
-### You need to do
+### You need to do（废弃，使用公共用户Cookie，您也可以使用个人私有的Cookie）
 
 ```shell
 # dir: project/util/tools.go
@@ -26,8 +26,9 @@ go build main.go
 
 ### TODO
 
+- [x] 搜索功能
 - [ ] 使用配置文件(eg: 爬取的页数 ...)
-- [ ] 登陆E-Hentai Forums保存并获取cookie
+- [ ] <del>登陆E-Hentai Forums保存并获取cookie</del>(使用公共用户Cookie)
 - [ ] 终端输出美化
 
 ### contact me
