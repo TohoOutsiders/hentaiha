@@ -4,12 +4,16 @@ import (
 	"fmt"
 	"github.com/gocolly/colly"
 	"hentai/util"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
-var logger util.ILogger
+var (
+	logger util.ILogger
+	keywords = "chinese"
+)
 
 const (
 	outputDir = "./out/"
@@ -21,7 +25,14 @@ func init()  {
 }
 
 func main() {
-	util.New().CheckDirExist(outputDir)
+	if flag, err := util.New().CheckDirExist(outputDir); !flag || err != nil {
+		log.Panicln("file dir check faild")
+	}
+
+	searchKW := util.Scanf()
+	if searchKW != "" {
+		keywords = searchKW
+	}
 
 	chNum := pageTotal + 1
 	ch := make(chan int, chNum)
@@ -63,10 +74,7 @@ func cheerioFirstListPage(c *colly.Collector, ch chan int) {
 		requestDetailPage(d, e)
 	})
 
-	c.OnResponse(func(r *colly.Response) {
-	})
-
-	c.Visit("https://exhentai.org/?f_search=chinese")
+	c.Visit("https://exhentai.org/?f_search=" + keywords)
 
 	ch <- 1
 }
@@ -81,9 +89,6 @@ func cheerioListPage(c *colly.Collector, pageIndex int, ch chan int) {
 	c.OnHTML(".gl3t a[href]", func(e *colly.HTMLElement) {
 		d := c.Clone()
 		requestDetailPage(d, e)
-	})
-
-	c.OnResponse(func(r *colly.Response) {
 	})
 
 	c.Visit(fmt.Sprintf("https://exhentai.org/?page=%d&f_search=chinese", pageIndex))

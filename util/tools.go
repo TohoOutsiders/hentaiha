@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -23,8 +24,18 @@ func New() (t *Tools) {
 	return t
 }
 
-func (t *Tools) CheckDirExist(path string) {
+func (t *Tools) ReplaceAll(s, old, newS string) (result string) {
+	result = strings.Replace(s, old, newS, -1)
+	return
+}
+
+func (t *Tools) CheckDirExist(path string) (bool, error) {
+	log.Println("START FILE DIR CHECK ... Please waiting for me ...")
 	_, err := os.Stat(path)
+
+	if err != nil {
+		return false, err
+	}
 
 	if !os.IsNotExist(err) {
 		dirList, e := ioutil.ReadDir(path)
@@ -37,6 +48,8 @@ func (t *Tools) CheckDirExist(path string) {
 	} else {
 		os.Mkdir(path, os.ModePerm)
 	}
+	log.Println("End FILE DIR CHECK!!!")
+	return true, nil
 }
 
 func (t *Tools) SetHeader(r *colly.Request) {
