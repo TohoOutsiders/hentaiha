@@ -1,12 +1,14 @@
 package util
 
 import (
+	"fmt"
 	"github.com/gocolly/colly"
 	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 type Tools struct {
@@ -61,6 +63,35 @@ func (t *Tools) SetHeader(r *colly.Request) {
 	r.Headers.Set("Cache-Control", "max-age=0")
 	r.Headers.Set("Connection", "keep-alive")
 	r.Headers.Set("Upgrade-Insecure-Requests", "1")
-	//r.Headers.Set("Cookie", "ipb_member_id=1044069; ipb_pass_hash=4268d5c05c94cdedf124eabf2f1e7c95; igneous=45e5748db; sk=3hl0ggzrgfvcsp3wdu4tarft1k7v")
 	r.Headers.Set("Cookie", "ipb_member_id=4483572; ipb_pass_hash=b1d7d5acd649a01a1643124c8a0918a8; igneous=df9724040; sk=3hl0ggzrgfvcsp3wdu4tarft1k7v")
+}
+
+func (t *Tools) ReadyGo(s int) {
+	ch := t.ticker(s)
+	time.Sleep(time.Duration(s) * time.Second)
+	ch <- true
+	close(ch)
+}
+
+func (t *Tools) ticker(s int) chan bool {
+	ticker := time.NewTicker(time.Second)
+	stopChan := make(chan bool)
+	go func(ticker *time.Ticker) {
+		num := s
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <- ticker.C:
+				fmt.Println(num)
+				num--
+			case stop := <- stopChan:
+				if stop {
+					fmt.Println("========= Game Start =========")
+					return
+				}
+			}
+		}
+	}(ticker)
+	return stopChan
 }
