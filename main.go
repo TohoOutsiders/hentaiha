@@ -12,12 +12,13 @@ import (
 
 var (
 	logger util.ILogger
-	keywords = "chinese"
+	keywords *string
+	pageTotal *int
 )
+
 
 const (
 	outputDir = "./out/"
-	pageTotal = 5
 )
 
 func init()  {
@@ -29,12 +30,27 @@ func main() {
 		log.Panicln("file dir check faild")
 	}
 
-	searchKW := util.Scanf()
+	constantKeyword := "chinese"
+	keywords = &constantKeyword
+	searchKW := util.Scanf("Search Your Keywords(Enter to search):")
 	if searchKW != "" {
-		keywords = searchKW
+		keywords = &searchKW
 	}
 
-	chNum := pageTotal + 1
+	constantPageTotal := 1
+	pageTotal = &constantPageTotal
+	pageTotalStr := util.Scanf("Request Page Size Set:")
+	if pageTotalStr != "" {
+		totalNum, err := strconv.Atoi(pageTotalStr)
+		if err != nil {
+			log.Panicln("Please Input Shaping Number !")
+		}
+		pageTotal = &totalNum
+	}
+
+	util.New().ReadyGo(5)
+
+	chNum := *pageTotal
 	ch := make(chan int, chNum)
 
 	c := colly.NewCollector(
@@ -46,14 +62,14 @@ func main() {
 
 	i := 1
 	for {
-		if i > 5 {
+		if i >= *pageTotal {
 			break
 		}
 		go cheerioListPage(c, i, ch)
 		i++
 	}
 
-	cashPool :=0
+	cashPool := 0
 	for cashPool < chNum {
 		cashPool += <-ch
 	}
@@ -74,7 +90,7 @@ func cheerioFirstListPage(c *colly.Collector, ch chan int) {
 		requestDetailPage(d, e)
 	})
 
-	c.Visit("https://exhentai.org/?f_search=" + keywords)
+	c.Visit("https://exhentai.org/?f_search=" + *keywords)
 
 	ch <- 1
 }
@@ -91,7 +107,7 @@ func cheerioListPage(c *colly.Collector, pageIndex int, ch chan int) {
 		requestDetailPage(d, e)
 	})
 
-	c.Visit(fmt.Sprintf("https://exhentai.org/?page=%d&f_search=chinese", pageIndex))
+	c.Visit(fmt.Sprintf("https://exhentai.org/?page=%d&f_search=%s", pageIndex, *keywords))
 
 	ch <- 1
 }
@@ -141,7 +157,7 @@ func mapImageForHentai(c *colly.Collector, detailEl *colly.HTMLElement, title *s
 	})
 
 	// 获取图片存储图片
-	c.OnHTML("#i3 > a > img", func(e *colly.HTMLElement) {
+	c.OnHTML("#i3 img", func(e *colly.HTMLElement) {
 		d := c.Clone()
 		reduceImage(d, e, title)
 	})
@@ -167,7 +183,7 @@ func nextImageGiveMe(c *colly.Collector, mapEl *colly.HTMLElement, title *string
 		})
 
 		// 获取图片存储图片
-		c.OnHTML("#i3 > a > img", func(e *colly.HTMLElement) {
+		c.OnHTML("#i3 img", func(e *colly.HTMLElement) {
 			d := c.Clone()
 			reduceImage(d, e, title)
 		})

@@ -13,8 +13,8 @@ import (
 	"os"
 )
 
-func Scanf() string {
-	fmt.Println("Search Your Keywords(Enter to search): ")
+func Scanf(title string) string {
+	fmt.Println(title)
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	if err := scanner.Err(); err != nil {
