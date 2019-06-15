@@ -121,7 +121,7 @@ func requestDetailPage(c *colly.Collector, cheeioEl *colly.HTMLElement)  {
 
 	c.OnRequest(func(dr *colly.Request) {
 		util.New().SetHeader(dr)
-		logger.Normal("Detail Visiting", dr.URL.String())
+		logger.Normal("Detail Visiting: ", dr.URL.String())
 	})
 
 	// 获取标题名称创建漫画文件夹
