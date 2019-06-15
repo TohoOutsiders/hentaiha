@@ -17,7 +17,13 @@ type Tools struct {
 var (
 	Tool = New()
 	once sync.Once
+	logger ILogger
 )
+
+func init()  {
+	logger = &Logger{}
+}
+
 
 func New() (t *Tools) {
 	once.Do(func() {
@@ -32,7 +38,8 @@ func (t *Tools) ReplaceAll(s, old, newS string) (result string) {
 }
 
 func (t *Tools) CheckDirExist(path string) (bool, error) {
-	log.Println("START FILE DIR CHECK ... Please waiting for me ...")
+	logger.Normal("START FILE DIR CHECK ... Please waiting for me ...")
+	//log.Println("START FILE DIR CHECK ... Please waiting for me ...")
 	_, err := os.Stat(path)
 
 	if err != nil {
@@ -50,7 +57,8 @@ func (t *Tools) CheckDirExist(path string) (bool, error) {
 	} else {
 		os.Mkdir(path, os.ModePerm)
 	}
-	log.Println("End FILE DIR CHECK!!!")
+	logger.Normal("End FILE DIR CHECK!!!")
+	//log.Println("End FILE DIR CHECK!!!")
 	return true, nil
 }
 
