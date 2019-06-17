@@ -27,9 +27,9 @@ go build main.go
 ### TODO
 
 - [x] 搜索功能
-- [ ] 使用配置文件(eg: 爬取的页数 ...)
-- [ ] <del>登陆E-Hentai Forums保存并获取cookie</del>(使用公共用户Cookie)
-- [ ] 终端输出美化
+- [ ] <del>使用配置文件</del>
+- [x] <del>登陆E-Hentai Forums保存并获取cookie</del>使用公共用户Cookie
+- [x] 终端输出美化
 
 ### contact me
 

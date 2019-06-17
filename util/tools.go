@@ -1,7 +1,6 @@
 package util
 
 import (
-	"fmt"
 	"github.com/gocolly/colly"
 	"io/ioutil"
 	"log"
@@ -39,7 +38,6 @@ func (t *Tools) ReplaceAll(s, old, newS string) (result string) {
 
 func (t *Tools) CheckDirExist(path string) (bool, error) {
 	logger.Normal("START FILE DIR CHECK ... Please waiting for me ...")
-	//log.Println("START FILE DIR CHECK ... Please waiting for me ...")
 	_, err := os.Stat(path)
 
 	if err != nil {
@@ -58,7 +56,6 @@ func (t *Tools) CheckDirExist(path string) (bool, error) {
 		os.Mkdir(path, os.ModePerm)
 	}
 	logger.Normal("End FILE DIR CHECK!!!")
-	//log.Println("End FILE DIR CHECK!!!")
 	return true, nil
 }
 
@@ -91,11 +88,11 @@ func (t *Tools) ticker(s int) chan bool {
 		for {
 			select {
 			case <- ticker.C:
-				fmt.Println(num)
+				logger.Underline(num)
 				num--
 			case stop := <- stopChan:
 				if stop {
-					fmt.Println("========= Game Start =========")
+					logger.Normal("========= Game Start =========")
 					return
 				}
 			}

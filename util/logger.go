@@ -9,12 +9,17 @@ package util
 import (
 	"fmt"
 	"github.com/kataras/golog"
+	"github.com/kataras/pio"
+	"os"
 	"time"
 )
+
+var pioCtx *pio.Printer
 
 func init() {
 	golog.SetTimeFormat("")
 	golog.SetLevel("debug")
+	pioCtx = pio.NewTextPrinter("color", os.Stdout)
 }
 
 type ILogger interface {
@@ -28,27 +33,27 @@ type Logger struct {
 }
 
 func (l *Logger) Normal(opt ...interface{}) {
-	//fmt.Println(chalk.Bold.TextStyle(str), opt)
-	fmt.Printf("[%s] ", time.Now().Format("2006-01-02 15:04:05"))
+	l.printDatetime()
 	golog.Println(opt...)
 }
 
 func (l *Logger) Info(opt ...interface{}) {
-	//blueOnWhite := chalk.Blue.NewStyle().WithBackground(chalk.White)
-	//fmt.Println(blueOnWhite.WithTextStyle(chalk.Bold).Style(str), opt)
-	fmt.Printf("[%s] ", time.Now().Format("2006-01-02 15:04:05"))
+	l.printDatetime()
 	golog.Info(opt...)
 }
 
 func (l *Logger) Underline(opt ...interface{}) {
-	//fmt.Println(chalk.Underline.TextStyle(str), opt)
-	fmt.Printf("[%s] ", time.Now().Format("2006-01-02 15:04:05"))
+	l.printDatetime()
 	golog.Warn(opt...)
 }
 
 func (l *Logger) Complate(str string) {
-	//lime := chalk.Green.NewStyle().WithBackground(chalk.Black).WithTextStyle(chalk.Bold).Style
-	//fmt.Printf("%v\n\n\n\n", lime(str))
-	fmt.Printf("[%s] ", time.Now().Format("2006-01-02 15:04:05"))
-	golog.Warn(str)
+	l.printDatetime()
+	str = fmt.Sprintf("[COMPLATE] %s", str)
+	pioCtx.Println(pio.Green(str))
+}
+
+func (l *Logger) printDatetime() {
+	time := fmt.Sprintf("[%s] ", time.Now().Format("2006-01-02 15:04:05"))
+	pioCtx.Print(pio.Yellow(time))
 }
