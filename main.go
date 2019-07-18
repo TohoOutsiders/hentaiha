@@ -11,17 +11,16 @@ import (
 )
 
 var (
-	logger util.ILogger
-	keywords *string
+	logger    util.ILogger
+	keywords  *string
 	pageTotal *int
 )
-
 
 const (
 	outputDir = "./out/"
 )
 
-func init()  {
+func init() {
 	logger = &util.Logger{}
 }
 
@@ -76,12 +75,12 @@ func main() {
 }
 
 /**
-	请求根地址，列表页
- */
+请求根地址，列表页
+*/
 func cheerioFirstListPage(c *colly.Collector, ch chan int) {
 	c.OnRequest(func(r *colly.Request) {
 		util.New().SetHeader(r)
-		logger.Info("Visiting", r.URL.String())
+		logger.Info("【Visiting】", r.URL.String())
 	})
 
 	// 获取每个list .gl3t a标签元素的详情链接
@@ -98,7 +97,7 @@ func cheerioFirstListPage(c *colly.Collector, ch chan int) {
 func cheerioListPage(c *colly.Collector, pageIndex int, ch chan int) {
 	c.OnRequest(func(r *colly.Request) {
 		util.New().SetHeader(r)
-		logger.Info("Visiting", r.URL.String())
+		logger.Info("【Visiting】", r.URL.String())
 	})
 
 	// 获取每个list .gl3t a标签元素的详情链接
@@ -113,15 +112,15 @@ func cheerioListPage(c *colly.Collector, pageIndex int, ch chan int) {
 }
 
 /**
-	列表各个详情页访问
- */
-func requestDetailPage(c *colly.Collector, cheeioEl *colly.HTMLElement)  {
+列表各个详情页访问
+*/
+func requestDetailPage(c *colly.Collector, cheeioEl *colly.HTMLElement) {
 	var title *string
 	link := cheeioEl.Attr("href")
 
 	c.OnRequest(func(dr *colly.Request) {
 		util.New().SetHeader(dr)
-		logger.Normal("Detail Visiting: ", dr.URL.String())
+		logger.Normal("【Detail Visiting】: ", dr.URL.String())
 	})
 
 	// 获取标题名称创建漫画文件夹
@@ -129,7 +128,7 @@ func requestDetailPage(c *colly.Collector, cheeioEl *colly.HTMLElement)  {
 		title = &de.Text
 		groupDir := fmt.Sprintf("%s%s", outputDir, *title)
 		_ = os.Mkdir(groupDir, os.ModePerm)
-		logger.Normal("detail title: ", de.Text)
+		logger.Normal("【detail title】: ", de.Text)
 	})
 
 	// 获取详情第一页图片链接
@@ -161,7 +160,7 @@ func mapImageForHentai(c *colly.Collector, detailEl *colly.HTMLElement, title *s
 		d := c.Clone()
 		reduceImage(d, e, title)
 	})
-	
+
 	c.OnHTML("#i3 > a[href]", func(e *colly.HTMLElement) {
 		next := e.Attr("href")
 		logger.Info("【HEAD】Start Image Download！！", next)
@@ -174,7 +173,7 @@ func mapImageForHentai(c *colly.Collector, detailEl *colly.HTMLElement, title *s
 
 func nextImageGiveMe(c *colly.Collector, mapEl *colly.HTMLElement, title *string, nextIndex *int, total int) {
 	if *nextIndex == total {
-		logger.Underline("=======================>  total ", total, )
+		logger.Underline("=======================>  total ", total)
 	}
 	if *nextIndex <= total {
 		next := mapEl.Attr("href")
@@ -190,7 +189,7 @@ func nextImageGiveMe(c *colly.Collector, mapEl *colly.HTMLElement, title *string
 
 		c.OnHTML("#i3 > a[href]", func(e *colly.HTMLElement) {
 			next := e.Attr("href")
-			logger.Info("Next Image Page: ", next)
+			logger.Info("【Next Image Page】: ", next)
 			d := c.Clone()
 			*nextIndex++
 			nextImageGiveMe(d, e, title, nextIndex, total)
