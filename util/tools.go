@@ -14,15 +14,14 @@ type Tools struct {
 }
 
 var (
-	Tool = New()
-	once sync.Once
+	Tool   = New()
+	once   sync.Once
 	logger ILogger
 )
 
-func init()  {
+func init() {
 	logger = &Logger{}
 }
-
 
 func New() (t *Tools) {
 	once.Do(func() {
@@ -39,10 +38,6 @@ func (t *Tools) ReplaceAll(s, old, newS string) (result string) {
 func (t *Tools) CheckDirExist(path string) (bool, error) {
 	logger.Normal("START FILE DIR CHECK ... Please waiting for me ...")
 	_, err := os.Stat(path)
-
-	if err != nil {
-		return false, err
-	}
 
 	if !os.IsNotExist(err) {
 		dirList, e := ioutil.ReadDir(path)
@@ -87,10 +82,10 @@ func (t *Tools) ticker(s int) chan bool {
 
 		for {
 			select {
-			case <- ticker.C:
+			case <-ticker.C:
 				logger.Underline(num)
 				num--
-			case stop := <- stopChan:
+			case stop := <-stopChan:
 				if stop {
 					logger.Normal("========= Game Start =========")
 					return
