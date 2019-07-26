@@ -1,4 +1,7 @@
-# 変態は！！
+# R.I.P
+https://exhentai.org
+
+### 変態は！！
 
 ### You need to do（废弃，使用公共用户Cookie，您也可以使用个人私有的Cookie）
 
